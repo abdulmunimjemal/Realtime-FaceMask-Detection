@@ -1,21 +1,28 @@
 import cv2
 import numpy as np
 from keras.models import load_model
-model=load_model("models/model2-009.model") # one of the models*
+
+# remember to change the model name according to your best model
+MODEL = "models/model2-009.model" 
+
+# remember to change the path according to your path (look in your python environment)
+CLASSIFIER = '.venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml' 
+
+
+# Remember: ESC to exit the loop
+model=load_model(MODEL)
 
 results={0:'without mask',1:'mask'}
 GR_dict={0:(0,0,255),1:(0,255,0)}
 
 rect_size = 4
 cap = cv2.VideoCapture(0) 
-
-haarcascade = cv2.CascadeClassifier('.venv\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+haarcascade = cv2.CascadeClassifier(CLASSIFIER)
 
 while True:
     (rval, im) = cap.read()
     im=cv2.flip(im,1,1) 
 
-    
     rerect_size = cv2.resize(im, (im.shape[1] // rect_size, im.shape[0] // rect_size))
     faces = haarcascade.detectMultiScale(rerect_size)
     for f in faces:
@@ -27,7 +34,6 @@ while True:
         reshaped=np.reshape(normalized,(1,150,150,3))
         reshaped = np.vstack([reshaped])
         result=model.predict(reshaped)
-
         
         label=np.argmax(result,axis=1)[0]
       
@@ -42,5 +48,4 @@ while True:
         break
 
 cap.release()
-
 cv2.destroyAllWindows()
